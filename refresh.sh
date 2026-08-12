@@ -67,6 +67,16 @@ clears_except() {
 SNAPSHOT="$(herdr api snapshot 2>/dev/null || true)"
 [ -z "$SNAPSHOT" ] && { echo "herdr: no snapshot (server down?)" >&2; exit 1; }
 
+# state_args KEY GLYPH — emit --token for the active state + clears for the rest.
+state_args() {
+  local key="$1" glyph="$2" out="" k
+  [ -n "$key" ] && out="--token $key=$glyph"
+  for k in st_working st_done st_idle st_blocked; do
+    [ "$k" != "$key" ] && out="$out --clear-token $k"
+  done
+  echo "$out"
+}
+
 # --- pane tokens -------------------------------------------------------------
 # One pass: dir/path for every agent pane; omp extras (stateline/summary/
 # project key) when the omp extension is configured.
@@ -77,12 +87,13 @@ echo "Refreshing pane tokens…"
 echo "$SNAPSHOT" | jq -r '.result.snapshot.agents[] | [.pane_id, .agent, (.agent_status // "?"), ((.terminal_title // "") | sub("^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏>!✓?] ?"; "")), (.cwd // "")] | @tsv' |
 while IFS=$'\t' read -r pid agent status label cwd; do
   g="?"
+  stk=""
   st="·"
   case "$status" in
-    working) g="⠋"; st="◐" ;;
-    idle) g=">"; st="○" ;;
-    done) g="✓"; st="✓" ;;
-    blocked) g="!"; st="×" ;;
+    working) g="⠋"; stk="st_working"; st="●" ;;
+    idle) g=">"; stk="st_idle"; st="○" ;;
+    done) g="✓"; stk="st_done"; st="✓" ;;
+    blocked) g="!"; stk="st_blocked"; st="×" ;;
   esac
   if [ -n "$cwd" ] && [ "$cwd" != "$HOME" ]; then
     case "$cwd" in "$HOME"*) rel="~${cwd#$HOME}";; *) rel="$cwd";; esac
@@ -90,20 +101,22 @@ while IFS=$'\t' read -r pid agent status label cwd; do
     [ -z "$dir" ] && dir="~"
     if [ "$OMP_ACTIVE" = "1" ] && [ "$agent" = "omp" ]; then
       key="$(project_token_key "$rel")"
+      # report_metadata caps at 16 tokens per call — summary is redundant
+      # with stateline (both carry the label) and is dropped to stay under it.
       herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
-        --token "stateline=$g $label" --token "summary=$label" --token "dir=$dir" --token "path=$rel" \
-        --token "state=$st" --token "$key=$dir" $(clears_except "$key") >/dev/null 2>&1
+        --token "stateline=$g $label" --token "dir=$dir" --token "path=$rel" \
+        $(state_args "$stk" "$st") --token "$key=$dir" $(clears_except "$key") >/dev/null 2>&1
       echo "  pane $pid → $key ($dir) [$st]"
     else
       herdr pane report-metadata "$pid" --source "$SOURCE" \
-        --token "dir=$dir" --token "path=$rel" --token "state=$st" >/dev/null 2>&1
+        --token "dir=$dir" --token "path=$rel" $(state_args "$stk" "$st") >/dev/null 2>&1
       echo "  pane $pid → dir=$dir [$st]"
     fi
   elif [ "$OMP_ACTIVE" = "1" ] && [ "$agent" = "omp" ]; then
     # cwd unknown or still at HOME during agent boot — keep existing project
     # tokens (the extension owns them once the session is ready).
     herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
-      --token "stateline=$g $label" --token "summary=$label" --token "state=$st" >/dev/null 2>&1
+      --token "stateline=$g $label" --token "summary=$label" $(state_args "$stk" "$st") >/dev/null 2>&1
     echo "  pane $pid → (cwd booting, project tokens untouched) [$st]"
   fi
 done

@@ -1,0 +1,69 @@
+# Example: adaptive herdr sidebar + theme configuration.
+# Copy the relevant parts into ~/.config/herdr/config.toml, then run:
+#   herdr-theme-sync            (or: prefix+alt+s)
+# theme-sync.py rewrites every color below from the active Ghostty theme.
+
+# --- Theme ------------------------------------------------------------------
+# theme-sync.py regenerates [theme.custom] (and the [ui] accent) from the
+# active Ghostty theme's palette. panel_bg stays "reset" so Ghostty's
+# background transparency/glass shows through.
+[theme.custom]
+panel_bg = "reset"
+accent = "#178ec8"
+text = "#9cc2c3"
+subtext0 = "#7a8f8e"
+surface0 = "#08262f"
+surface1 = "#0e2d35"
+surface_dim = "#05232c"
+overlay0 = "#37575e"
+overlay1 = "#56787d"
+mauve = "#e24d8e"
+green = "#51ef84"
+yellow = "#b27e28"
+red = "#f5163b"
+blue = "#178ec8"
+teal = "#00b39e"
+peach = "#f5163b"
+
+# --- Sidebar rows -----------------------------------------------------------
+# NOTE: built-in tokens (workspace, agent, state_text, ...) ignore fg and
+# render in herdr's state colors. Custom $tokens honor fg exactly — so names
+# and per-project colors use $tokens, and state signals stay in the icons.
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", { token = "agent", fg = "#9cc2c3", bold = true }, "workspace", "tab"],
+  [{ token = "terminal_title_stripped", fg = "#7a8f8e", bold = true }],
+]
+
+# Per-agent rows: the omp/π extension reports ONE project token per pane
+# ($zuiio, $tolom, ...); unset tokens disappear, so only the active project
+# shows its color. Style any token you configure in refresh-projects.conf.
+[ui.sidebar.agents.rows_by_agent]
+omp = [
+  ["state_icon", { token = "agent", fg = "#9cc2c3", bold = true },
+   { token = "$zuiio", fg = "#178ec8", bold = true },
+   { token = "$tolom", fg = "#51ef84", bold = true },
+   { token = "$zer", fg = "#e24d8e", bold = true },
+   { token = "$onoo", fg = "#b27e28", bold = true },
+   { token = "$herdr", fg = "#f5163b", bold = true },
+   { token = "$omp", fg = "#00b39e", bold = true },
+   { token = "$archive", fg = "#7a8f8e", bold = true },
+   { token = "$horoscope", fg = "#e24d8e", bold = true },
+   { token = "$misc", fg = "#00b39e", bold = true }],
+  [{ token = "terminal_title", fg = "#7a8f8e", bold = true }],
+]
+
+# Spaces: $name is the workspace label in a fixed color (the built-in
+# `workspace` token renders state-colored and ignores fg). $name/$dir/$panes
+# are pushed by refresh.sh.
+[ui.sidebar.spaces]
+row_gap = 0
+rows = [
+  ["state_icon",
+   { token = "$name", fg = "#9cc2c3", bold = true }],
+  [{ token = "branch", fg = "#51ef84", bold = true },
+   { token = "git_status", fg = "#b27e28", bold = true },
+   { token = "$dir", fg = "#00b39e", bold = true },
+   { token = "$panes", fg = "#7a8f8e", bold = true }],
+]

@@ -1,0 +1,23 @@
+id = "ghostty-theme-sync"
+name = "Ghostty Theme Sync"
+version = "0.1.0"
+min_herdr_version = "0.8.0"
+description = "Adapt herdr's theme and sidebar colors to the active Ghostty theme, and re-push sidebar tokens"
+platforms = ["macos", "linux"]
+
+# sync — read the active Ghostty theme and rewrite herdr's [theme.custom] +
+# sidebar token colors to match, then reload herdr and re-push sidebar tokens.
+[[actions]]
+id = "sync"
+title = "Sync herdr theme from Ghostty"
+contexts = ["global"]
+command = ["python3", "theme-sync.py"]
+
+# refresh — re-push sidebar tokens (workspace name/dir/path/panes, pane
+# dir/path, optional per-project colors) from the live herdr snapshot.
+# Needed after a herdr restart: tokens are ephemeral server state.
+[[actions]]
+id = "refresh"
+title = "Refresh herdr sidebar tokens"
+contexts = ["global"]
+command = ["bash", "refresh.sh"]

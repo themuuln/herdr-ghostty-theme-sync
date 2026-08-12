@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# herdr-auto-sync — sync herdr theme + sidebar tokens when ghostty or herdr
+# changes. Called by launchd (WatchPaths on the ghostty config and the herdr
+# socket). Idempotent: no-op when nothing changed. Retries while herdr boots.
+
+set -u
+
+for attempt in 1 2 3 4; do
+  # theme-sync rewrites colors when the ghostty theme changed, reloads herdr,
+  # and always re-pushes sidebar tokens; refresh re-pushes tokens directly.
+  "$HOME/.local/bin/herdr-theme-sync" || true
+  if "$HOME/.local/bin/herdr-refresh-sidebar"; then
+    exit 0
+  fi
+  [ "$attempt" -lt 4 ] && sleep 5
+done
+
+echo "herdr-auto-sync: herdr server not reachable after 4 attempts" >&2
+exit 1

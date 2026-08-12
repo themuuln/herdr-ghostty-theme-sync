@@ -165,8 +165,11 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     sidebar = {
         # names / main text
         "$name": fg, "workspace": fg, "agent": fg,
-        # state glyphs — working=orange ●, done=cyan ✓, idle=green ○, blocked=red ×
-        "$st_working": orange, "$st_done": cyan, "$st_idle": green, "$st_blocked": red,
+        # state glyphs — working=orange ●, done=brighter cyan ✔, idle=green ○,
+        # blocked=red ×. done mixes cyan toward the theme's lightest color so
+        # finished agents pop against the dark panel.
+        "$st_working": orange, "$st_done": mix(cyan, px(15, fg), 0.35),
+        "$st_idle": green, "$st_blocked": red,
         "terminal_title": dim, "terminal_title_stripped": dim,
         # git + context line
         "branch": green, "git_status": yellow, "$dir": cyan, "$panes": dim,

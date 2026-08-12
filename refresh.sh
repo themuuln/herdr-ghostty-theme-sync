@@ -97,7 +97,7 @@ while IFS=$'\t' read -r pid agent status label cwd; do
   case "$status" in
     working) g="⠋"; stk="st_working"; st="●" ;;
     idle) g=">"; stk="st_idle"; st="○" ;;
-    done) g="✓"; stk="st_done"; st="✓" ;;
+    done) g="✔"; stk="st_done"; st="✔" ;;
     blocked) g="!"; stk="st_blocked"; st="×" ;;
   esac
   if [ -n "$cwd" ] && [ "$cwd" != "$HOME" ]; then

@@ -23,7 +23,7 @@ yellow = "#b27e28"
 red = "#f5163b"
 blue = "#178ec8"
 teal = "#00b39e"
-peach = "#f5163b"
+peach = "#f34b00"
 
 # --- Sidebar rows -----------------------------------------------------------
 # NOTE: built-in tokens (workspace, agent, state_text, ...) ignore fg and
@@ -37,24 +37,24 @@ rows = [
 ]
 
 # Per-agent rows: the omp/π extension reports ONE project token per pane
-# ($zuiio, $tolom, ...) plus per-state glyph tokens — $st_working=● (yellow),
-# $st_done=✓ (green), $st_idle=○ (dim), $st_blocked=× (red) — one set per
+# ($zuiio, $tolom, ...) plus per-state glyph tokens — $st_working=● (orange),
+# $st_done=✓ (cyan), $st_idle=○ (green), $st_blocked=× (red) — one set per
 # report, others cleared. herdr 0.8.0's built-in state_icon renders done and
 # working as the same solid dot, so these custom tokens keep states obvious.
 # Unset tokens disappear, so only the active project/state shows. Style any
 # token you configure in refresh-projects.conf.
 [ui.sidebar.agents.rows_by_agent]
 omp = [
-  [{ token = "$st_working", fg = "#b27e28", bold = true },
-   { token = "$st_done", fg = "#51ef84", bold = true },
-   { token = "$st_idle", fg = "#7a8f8e", dim = true },
+  [{ token = "$st_working", fg = "#f34b00", bold = true },
+   { token = "$st_done", fg = "#00b39e", bold = true },
+   { token = "$st_idle", fg = "#51ef84", bold = true },
    { token = "$st_blocked", fg = "#f5163b", bold = true },
    { token = "agent", fg = "#9cc2c3", bold = true },
    { token = "$zuiio", fg = "#178ec8", bold = true },
    { token = "$tolom", fg = "#51ef84", bold = true },
    { token = "$zer", fg = "#e24d8e", bold = true },
    { token = "$onoo", fg = "#b27e28", bold = true },
-   { token = "$herdr", fg = "#f5163b", bold = true },
+   { token = "$herdr", fg = "#f34b00", bold = true },
    { token = "$omp", fg = "#00b39e", bold = true },
    { token = "$archive", fg = "#7a8f8e", bold = true },
    { token = "$horoscope", fg = "#e24d8e", bold = true },

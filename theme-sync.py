@@ -139,7 +139,10 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     dim = theme.get("selection-foreground") or mix(fg, bg, 0.45)
     # Bright palette variants (8-15) for anything that must pop on dark bg.
     green, yellow, red = px(10, fg), px(11, fg), px(9, fg)
-    blue, magenta, cyan, orange = px(12, fg), px(13, fg), px(14, fg), px(9, fg)
+    blue, magenta, cyan = px(12, fg), px(13, fg), px(14, fg)
+    # The theme's cursor color is its only genuine orange (solarized variants
+    # put bright red at palette 9); fall back to 9 when unset.
+    orange = theme.get("cursor-color") or px(9, fg)
 
     custom = {
         "panel_bg": "reset",  # keep ghostty glass transparency
@@ -162,8 +165,8 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     sidebar = {
         # names / main text
         "$name": fg, "workspace": fg, "agent": fg,
-        # state glyphs — per-state colors so working/done/idle/blocked stay obvious
-        "$st_working": yellow, "$st_done": green, "$st_idle": dim, "$st_blocked": red,
+        # state glyphs — working=orange ●, done=cyan ✓, idle=green ○, blocked=red ×
+        "$st_working": orange, "$st_done": cyan, "$st_idle": green, "$st_blocked": red,
         "terminal_title": dim, "terminal_title_stripped": dim,
         # git + context line
         "branch": green, "git_status": yellow, "$dir": cyan, "$panes": dim,

@@ -10,7 +10,8 @@
 #     agent panes, when the omp metadata extension is present
 #
 # Run manually when the sidebar looks stale, after a herdr restart, or from a
-# keybinding / launchd watcher.
+# keybinding / launchd watcher. Also wired as the plugin's [[startup]] hook,
+# so it runs automatically after every herdr restart.
 
 set -euo pipefail
 
@@ -29,6 +30,10 @@ if [ -f "$HOME/.config/herdr/refresh-projects.conf" ]; then
   # shellcheck source=/dev/null
   . "$HOME/.config/herdr/refresh-projects.conf"
 fi
+
+# Prefer the running herdr binary (set by herdr for plugin actions/startup
+# hooks); fall back to PATH for manual runs.
+HERDR="${HERDR_BIN_PATH:-herdr}"
 
 SOURCE="${SOURCE:-omp:metadata}"
 
@@ -64,7 +69,7 @@ clears_except() {
   echo "$out"
 }
 
-SNAPSHOT="$(herdr api snapshot 2>/dev/null || true)"
+SNAPSHOT="$("$HERDR" api snapshot 2>/dev/null || true)"
 [ -z "$SNAPSHOT" ] && { echo "herdr: no snapshot (server down?)" >&2; exit 1; }
 
 # state_args KEY GLYPH — emit --token for the active state + clears for the rest.
@@ -103,19 +108,19 @@ while IFS=$'\t' read -r pid agent status label cwd; do
       key="$(project_token_key "$rel")"
       # report_metadata caps at 16 tokens per call — summary is redundant
       # with stateline (both carry the label) and is dropped to stay under it.
-      herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
+      "$HERDR" pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
         --token "stateline=$g $label" --token "dir=$dir" --token "path=$rel" \
         $(state_args "$stk" "$st") --token "$key=$dir" $(clears_except "$key") >/dev/null 2>&1
       echo "  pane $pid → $key ($dir) [$st]"
     else
-      herdr pane report-metadata "$pid" --source "$SOURCE" \
+      "$HERDR" pane report-metadata "$pid" --source "$SOURCE" \
         --token "dir=$dir" --token "path=$rel" $(state_args "$stk" "$st") >/dev/null 2>&1
       echo "  pane $pid → dir=$dir [$st]"
     fi
   elif [ "$OMP_ACTIVE" = "1" ] && [ "$agent" = "omp" ]; then
     # cwd unknown or still at HOME during agent boot — keep existing project
     # tokens (the extension owns them once the session is ready).
-    herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
+    "$HERDR" pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
       --token "stateline=$g $label" --token "summary=$label" $(state_args "$stk" "$st") >/dev/null 2>&1
     echo "  pane $pid → (cwd booting, project tokens untouched) [$st]"
   fi
@@ -132,7 +137,7 @@ while IFS=$'\t' read -r wid label pane_count tab_count; do
   case "$cwd" in "$HOME"*) rel="~${cwd#$HOME}";; *) rel="$cwd";; esac
   dir="$(basename "$rel")"
   [ -z "$dir" ] && dir="~"
-  herdr workspace report-metadata "$wid" --source "$SOURCE" \
+  "$HERDR" workspace report-metadata "$wid" --source "$SOURCE" \
     --token "name=$label" --token "dir=$dir" --token "path=$rel" \
     --token "panes=$pane_count pane$( [ "$pane_count" = "1" ] && echo "" || echo "s" )" \
     $(clears_except "") >/dev/null 2>&1

@@ -20,7 +20,7 @@ theme, and keep sidebar tokens alive across herdr restarts.
 - **State icons conflate done and idle**: herdr 0.8.0's `state_icon` (Dots
   style) renders `done` and `working` as solid dots and `idle` as an outline.
   The companion omp extension pushes per-state `$st_*` tokens with distinct,
-  colored symbols (`●` yellow working / `✓` green done / `○` dim idle / `×`
+  colored symbols (`●` orange working / `✓` cyan done / `○` green idle / `×`
   red blocked) so finished agents are instantly visible.
 
 ## Install

@@ -21,3 +21,10 @@ id = "refresh"
 title = "Refresh herdr sidebar tokens"
 contexts = ["global"]
 command = ["bash", "refresh.sh"]
+
+# startup — same refresh, run automatically after every herdr restart (and
+# live handoff): workspace/pane sidebar tokens are ephemeral server state
+# and the omp extension only covers agent panes, so the spaces panel would
+# otherwise stay blank until a manual refresh.
+[[startup]]
+command = ["bash", "refresh.sh"]

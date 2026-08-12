@@ -166,10 +166,10 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     sidebar = {
         # names / main text
         "$name": fg, "workspace": fg, "agent": fg,
-        # state glyphs — working=orange ●, done=blue ●, idle=green ○,
-        # blocked=red ×. working and done are both solid circles, told apart
-        # by color (blue pops against the dark panel next to orange/red).
-        "$st_working": orange, "$st_done": blue, "$st_idle": green,
+        # state glyphs — working=orange ●, done=vibrant green ✓, idle=green ○,
+        # blocked=red ×. done is a checkmark in bright green so it pops
+        # against the dark panel (matches the omp extension's DONE_GLYPH).
+        "$st_working": orange, "$st_done": "#00ff5f", "$st_idle": green,
         "$st_blocked": red,
         "terminal_title": dim, "terminal_title_stripped": dim,
         # git + context line

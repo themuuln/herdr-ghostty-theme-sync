@@ -89,7 +89,7 @@ OMP_ACTIVE=0
 [ -n "$OMP_EXT" ] && [ -f "$OMP_EXT" ] && OMP_ACTIVE=1
 echo "Refreshing pane tokens…"
 # shellcheck disable=SC2086
-echo "$SNAPSHOT" | jq -r '.result.snapshot.agents[] | [.pane_id, .agent, (.agent_status // "?"), ((.terminal_title // "") | sub("^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏>!✓?] ?"; "")), (.cwd // "")] | @tsv' |
+echo "$SNAPSHOT" | jq -r '.result.snapshot.agents[] | [.pane_id, .agent, (.agent_status // "?"), ((.terminal_title // "") | sub("^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏>!✓●?] ?"; "")), (.cwd // "")] | @tsv' |
 while IFS=$'\t' read -r pid agent status label cwd; do
   g="?"
   stk=""
@@ -97,7 +97,7 @@ while IFS=$'\t' read -r pid agent status label cwd; do
   case "$status" in
     working) g="⠋"; stk="st_working"; st="●" ;;
     idle) g=">"; stk="st_idle"; st="○" ;;
-    done) g="✔"; stk="st_done"; st="✔" ;;
+    done) g="●"; stk="st_done"; st="●" ;;
     blocked) g="!"; stk="st_blocked"; st="×" ;;
   esac
   if [ -n "$cwd" ] && [ "$cwd" != "$HOME" ]; then

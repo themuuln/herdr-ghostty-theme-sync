@@ -140,9 +140,10 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     # Bright palette variants (8-15) for anything that must pop on dark bg.
     green, yellow, red = px(10, fg), px(11, fg), px(9, fg)
     blue, magenta, cyan = px(12, fg), px(13, fg), px(14, fg)
-    # The theme's cursor color is its only genuine orange (solarized variants
-    # put bright red at palette 9); fall back to 9 when unset.
-    orange = theme.get("cursor-color") or px(9, fg)
+    # The theme's cursor color is a red-orange (solarized variants put bright
+    # red at palette 9); mix toward yellow for a cleaner orange that stays
+    # distinct from the blocked red. Fall back to 9 when no cursor is set.
+    orange = mix(theme.get("cursor-color") or px(9, fg), yellow, 0.5)
 
     custom = {
         "panel_bg": "reset",  # keep ghostty glass transparency
@@ -165,11 +166,11 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     sidebar = {
         # names / main text
         "$name": fg, "workspace": fg, "agent": fg,
-        # state glyphs — working=orange ●, done=brighter cyan ✔, idle=green ○,
-        # blocked=red ×. done mixes cyan toward the theme's lightest color so
-        # finished agents pop against the dark panel.
-        "$st_working": orange, "$st_done": mix(cyan, px(15, fg), 0.35),
-        "$st_idle": green, "$st_blocked": red,
+        # state glyphs — working=orange ●, done=blue ●, idle=green ○,
+        # blocked=red ×. working and done are both solid circles, told apart
+        # by color (blue pops against the dark panel next to orange/red).
+        "$st_working": orange, "$st_done": blue, "$st_idle": green,
+        "$st_blocked": red,
         "terminal_title": dim, "terminal_title_stripped": dim,
         # git + context line
         "branch": green, "git_status": yellow, "$dir": cyan, "$panes": dim,

@@ -161,7 +161,7 @@ def compute(theme: dict) -> tuple[dict, dict, dict]:
     }
     sidebar = {
         # names / main text
-        "$name": fg, "workspace": fg, "agent": fg,
+        "$name": fg, "workspace": fg, "agent": fg, "$state": fg,
         "terminal_title": dim, "terminal_title_stripped": dim,
         # git + context line
         "branch": green, "git_status": yellow, "$dir": cyan, "$panes": dim,

@@ -17,6 +17,11 @@ theme, and keep sidebar tokens alive across herdr restarts.
   render in *state colors* (orange while working, green while idle) and ignore
   `fg`. Custom `$tokens` honor `fg` exactly — this tool uses `$name` and
   per-project `$tokens` so names stay consistently colored.
+- **State icons conflate done and idle**: herdr 0.8.0's `state_icon` (Dots
+  style) renders `done` and `working` as solid dots and `idle` as an outline.
+  The companion omp extension pushes a `$state` token with distinct symbols
+  (◐ working / ✓ done / ○ idle / × blocked) so finished agents are instantly
+  visible.
 
 ## Install
 

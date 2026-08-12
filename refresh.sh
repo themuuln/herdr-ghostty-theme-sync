@@ -77,11 +77,12 @@ echo "Refreshing pane tokens…"
 echo "$SNAPSHOT" | jq -r '.result.snapshot.agents[] | [.pane_id, .agent, (.agent_status // "?"), ((.terminal_title // "") | sub("^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏>!✓?] ?"; "")), (.cwd // "")] | @tsv' |
 while IFS=$'\t' read -r pid agent status label cwd; do
   g="?"
-  [ "$OMP_ACTIVE" = "1" ] && [ "$agent" = "omp" ] && case "$status" in
-    working) g="⠋" ;;
-    idle) g=">" ;;
-    blocked) g="!" ;;
-    done) g="✓" ;;
+  st="·"
+  case "$status" in
+    working) g="⠋"; st="◐" ;;
+    idle) g=">"; st="○" ;;
+    done) g="✓"; st="✓" ;;
+    blocked) g="!"; st="×" ;;
   esac
   if [ -n "$cwd" ] && [ "$cwd" != "$HOME" ]; then
     case "$cwd" in "$HOME"*) rel="~${cwd#$HOME}";; *) rel="$cwd";; esac
@@ -91,19 +92,19 @@ while IFS=$'\t' read -r pid agent status label cwd; do
       key="$(project_token_key "$rel")"
       herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
         --token "stateline=$g $label" --token "summary=$label" --token "dir=$dir" --token "path=$rel" \
-        --token "$key=$dir" $(clears_except "$key") >/dev/null 2>&1
-      echo "  pane $pid → $key ($dir)"
+        --token "state=$st" --token "$key=$dir" $(clears_except "$key") >/dev/null 2>&1
+      echo "  pane $pid → $key ($dir) [$st]"
     else
       herdr pane report-metadata "$pid" --source "$SOURCE" \
-        --token "dir=$dir" --token "path=$rel" >/dev/null 2>&1
-      echo "  pane $pid → dir=$dir"
+        --token "dir=$dir" --token "path=$rel" --token "state=$st" >/dev/null 2>&1
+      echo "  pane $pid → dir=$dir [$st]"
     fi
   elif [ "$OMP_ACTIVE" = "1" ] && [ "$agent" = "omp" ]; then
     # cwd unknown or still at HOME during agent boot — keep existing project
     # tokens (the extension owns them once the session is ready).
     herdr pane report-metadata "$pid" --source "$SOURCE" --agent omp --display-agent "π" \
-      --token "stateline=$g $label" --token "summary=$label" >/dev/null 2>&1
-    echo "  pane $pid → (cwd booting, project tokens untouched)"
+      --token "stateline=$g $label" --token "summary=$label" --token "state=$st" >/dev/null 2>&1
+    echo "  pane $pid → (cwd booting, project tokens untouched) [$st]"
   fi
 done
 

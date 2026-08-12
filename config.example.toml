@@ -37,11 +37,15 @@ rows = [
 ]
 
 # Per-agent rows: the omp/π extension reports ONE project token per pane
-# ($zuiio, $tolom, ...); unset tokens disappear, so only the active project
-# shows its color. Style any token you configure in refresh-projects.conf.
+# ($zuiio, $tolom, ...) plus a $state glyph token (◐ working / ✓ done /
+# ○ idle / × blocked — the built-in state_icon renders done and idle
+# identically on herdr 0.8.0). Unset tokens disappear, so only the active
+# project shows its color. Style any token you configure in
+# refresh-projects.conf.
 [ui.sidebar.agents.rows_by_agent]
 omp = [
-  ["state_icon", { token = "agent", fg = "#9cc2c3", bold = true },
+  [{ token = "$state", fg = "#9cc2c3", bold = true },
+   { token = "agent", fg = "#9cc2c3", bold = true },
    { token = "$zuiio", fg = "#178ec8", bold = true },
    { token = "$tolom", fg = "#51ef84", bold = true },
    { token = "$zer", fg = "#e24d8e", bold = true },
